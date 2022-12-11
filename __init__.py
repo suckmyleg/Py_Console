@@ -6,24 +6,6 @@ import sys
 import os
 import threading
 
-class TriggerFrom:
-	def __init__(self, name, t):
-		self.t = t
-		self.logger = self.t.logger
-		self.trigger_datas = self.t.trigger_datas
-		self.plugins = self.t.plugins
-		self.trigger_by = self.t.trigger_by
-		self.plugin_name = name
-
-	def add_listener(self, n, f):
-		self.t.add_listener(n, f, self.plugin_name)
-
-	def add_command(self, n, f):
-		self.t.add_command(n, f, self.plugin_name)
-
-	def trigger_command(self, n, *args):
-		self.t.trigger_command(n, self.plugin_name, *args)
-
 
 class Main:
 	def __init__(self):
@@ -58,7 +40,7 @@ class Main:
 
 		for extension_imported in Imported:
 			self.t.trigger_event("on_extension_before_loading", "Main", extension_imported)
-			threading.Thread(target=extension_imported.start, args=(TriggerFrom(extension_imported.Module_Name, self.t), self.c, self)).start()
+			threading.Thread(target=extension_imported.start, args=(trigger.TriggerBridge(extension_imported.Module_Name, self.t), self.c, self)).start()
 			self.t.trigger_event("on_extension_started", "Main", extension_imported)
 
 m = Main()

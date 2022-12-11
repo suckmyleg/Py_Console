@@ -1,30 +1,23 @@
-class Errors:
-	def __init__(self, logger):
-		self.logger = logger
-		self.errors = []
+from Debugger import *
+from PluginsController import *
 
-	def add_error(self, args):
-		self.errors.append(args)
-		if self.logger.status:
-			print(f"\nNew error:\n  - Code: {args[2]}\n  - Fun: {args[0]}\n  - Args: {args[1]}\n")
+class TriggerBridge:
+	def __init__(self, name, t):
+		self.t = t
+		self.logger = self.t.logger
+		self.trigger_datas = self.t.trigger_datas
+		self.plugins = self.t.plugins
+		self.trigger_by = self.t.trigger_by
+		self.plugin_name = name
 
-class Logger:
-	def __init__(self):
-		self.status = False
+	def add_listener(self, n, f):
+		self.t.add_listener(n, f, self.plugin_name)
 
-	def log(self, action, event, plugin_name="Main", *args):
-		if self.status:
-			print(f" {plugin_name} - [{action}] ({event})")
+	def add_command(self, n, f):
+		self.t.add_command(n, f, self.plugin_name)
 
-class Plugins:
-	def __init__(self, logger):
-		self.imported = []
-		self.runned = []
-		self.logger = logger
-
-	def add(self, plug):
-		self.logger.log("imported", plug.Module_Name)
-		self.imported.append(plug)
+	def trigger_command(self, n, *args):
+		self.t.trigger_command(n, self.plugin_name, *args)
 
 class Trigger:
 	def __init__(self):
