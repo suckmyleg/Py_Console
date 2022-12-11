@@ -9,3 +9,6 @@ class Client:
 
 	def input(self, *args):
 		return self.reciever.input(*args)
+
+	def print(self, *args):
+		return self.reciever.print(*args)

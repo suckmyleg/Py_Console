@@ -10,7 +10,7 @@ class Errors:
 
 class Logger:
 	def __init__(self):
-		self.status = True
+		self.status = False
 
 	def log(self, action, event, plugin_name="Main", from_command="trigger"):
 		if self.status:

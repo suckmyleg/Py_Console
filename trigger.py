@@ -57,6 +57,8 @@ class Trigger:
 
 		self.trigger_by = {}
 
+		self.descriptions = {}
+
 	def add_command(self, command, fun, plugin_name):
 		return self.add_listener(f"command_{command}", fun, plugin_name)
 

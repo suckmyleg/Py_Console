@@ -19,5 +19,5 @@ def start(t, c, m):
 		if not output:
 			status = "Failed"
 
-		print(f"\nTest:\n  Timelapsed: {time()-start}\n  Status: {status}\n  Output: {output}")
+		c.print(f"\nTest:\n  Timelapsed: {time()-start}\n  Status: {status}\n  Output: {output}")
 	t.add_command("test", testFun)
