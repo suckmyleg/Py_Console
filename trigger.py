@@ -10,23 +10,51 @@ class TriggerBridge:
 		self.trigger_by = self.t.trigger_by
 		self.plugin_name = name
 
+	def whose_command(self, command):
+		return self.t.whose_command(command)
+
 	def add_listener(self, n, f):
-		self.t.add_listener(n, f, self.plugin_name)
+		return self.t.add_listener(n, f, self.plugin_name)
 
 	def add_command(self, n, f):
-		self.t.add_command(n, f, self.plugin_name)
+		return self.t.add_command(n, f, self.plugin_name)
 
 	def trigger_command(self, n, *args):
-		self.t.trigger_command(n, self.plugin_name, *args)
+		return self.t.trigger_command(n, self.plugin_name, *args)
+
+	def trigger_event(self, n, *args):
+		return self.t.trigger_event(n, self.plugin_name, *args)
 
 class Trigger:
 	def __init__(self):
 		self.logger = Logger()
 		self.errors = Errors(self.logger)
 		self.plugins = Plugins(self.logger)
-		self.data = {"on_error":[self.errors.add_error], "on_extension_started":[self.plugins.add]}
-		self.calls_logs = {"on_error":[], "on_extension_started":[]}
-		self.trigger_datas = {"on_error":[], "on_extension_started":[]}
+
+		self.data = {
+		"on_error":[self.errors.add_error], 
+		"on_extension_started":[self.plugins.add], 
+		"on_extension_before_exporting":[], 
+		"on_extension_imported":[], 
+		"on_extension_before_loading":[]
+		}
+
+		self.calls_logs = {
+		"on_error":[], 
+		"on_extension_started":[], 
+		"on_extension_before_exporting":[], 
+		"on_extension_imported":[], 
+		"on_extension_before_loading":[]
+		}
+
+		self.trigger_datas = {
+		"on_error":[], 
+		"on_extension_started":[], 
+		"on_extension_before_exporting":[], 
+		"on_extension_imported":[], 
+		"on_extension_before_loading":[]
+		}
+
 		self.trigger_by = {}
 
 	def add_command(self, command, fun, plugin_name):
@@ -37,10 +65,10 @@ class Trigger:
 
 	def add_listener(self, event, fun, plugin_name):
 		try:
-			self.logger.log("add", event, plugin_name, fun)
 			self.data[event].append(fun)
+			self.logger.log("add", event, plugin_name)
 		except:
-			self.logger.log("creating", event, plugin_name, fun)
+			self.logger.log("creating", event, plugin_name)
 			self.trigger_by[event] = plugin_name
 			self.trigger_datas[event] = []
 			self.calls_logs[event] = []
@@ -50,7 +78,7 @@ class Trigger:
 	def trigger_event(self, event, plugin_name, *args):
 		try:
 			for to_call in self.data[event]:
-				self.logger.log("calling", event, plugin_name, to_call)
+				self.logger.log("calling", event, plugin_name, self.whose_trigger(event))
 				try:
 					call_back = to_call(*args)
 				except Exception as e:
@@ -84,4 +112,13 @@ class Trigger:
 				self.trigger_datas[event] = args
 		except:
 			self.trigger_datas[event] = args
+			return False
+
+	def whose_command(self, command_name):
+		return self.whose_trigger(f"command_{command_name}")
+
+	def whose_trigger(self, trigger_name):
+		try:
+			return self.trigger_by[trigger_name]
+		except:
 			return False

@@ -12,6 +12,6 @@ class Logger:
 	def __init__(self):
 		self.status = True
 
-	def log(self, action, event, plugin_name="Main", *args):
+	def log(self, action, event, plugin_name="Main", from_command="trigger"):
 		if self.status:
-			print(f" {plugin_name} - [{action}] ({event})")
+			print(f" {plugin_name} => [{action}] {from_command}.{event}")

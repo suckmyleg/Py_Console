@@ -7,12 +7,6 @@ def start(t, c, m):
 	def display_logs(*args):
 		print(t.trigger_datas["on_message"])
 
-	def trigger_command(text):
-		datas = text.split(" ")
-		command = datas[0]
-		del datas[0]
-		t.trigger_command(command, " ".join(datas))
-
 	def switch_log(*args):
 		status = t.logger.status
 
@@ -25,9 +19,6 @@ def start(t, c, m):
 			pass
 			
 		t.logger.status = not status
-
-
-	t.add_listener("on_message", trigger_command)
 
 	t.add_command("print", print)
 	t.add_command("logs", display_logs)

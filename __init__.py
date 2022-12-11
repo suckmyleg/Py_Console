@@ -40,7 +40,8 @@ class Main:
 
 		for extension_imported in Imported:
 			self.t.trigger_event("on_extension_before_loading", "Main", extension_imported)
-			threading.Thread(target=extension_imported.start, args=(trigger.TriggerBridge(extension_imported.Module_Name, self.t), self.c, self)).start()
+			extension_imported.start(trigger.TriggerBridge(extension_imported.Module_Name, self.t), self.c, self)
+			#threading.Thread(target=extension_imported.start, args=(trigger.TriggerBridge(extension_imported.Module_Name, self.t), self.c, self)).start()
 			self.t.trigger_event("on_extension_started", "Main", extension_imported)
 
 m = Main()

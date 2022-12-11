@@ -5,5 +5,5 @@ class Plugins:
 		self.logger = logger
 
 	def add(self, plug):
-		self.logger.log("imported", plug.Module_Name)
+		self.logger.log("imported", plug.Module_Name, "Plugins")
 		self.imported.append(plug)
