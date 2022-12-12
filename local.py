@@ -7,3 +7,4 @@ class Local:
 
 	def print(self, *args):
 		print(*args)
+		return True

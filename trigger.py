@@ -26,9 +26,10 @@ class TriggerBridge:
 		return self.t.trigger_event(n, self.plugin_name, *args)
 
 class Trigger:
-	def __init__(self):
-		self.logger = Logger()
-		self.errors = Errors(self.logger)
+	def __init__(self, c):
+		self.c = c
+		self.logger = Logger(self.c)
+		self.errors = Errors(self.logger, self.c)
 		self.plugins = Plugins(self.logger)
 
 		self.data = {
@@ -78,17 +79,19 @@ class Trigger:
 			self.add_listener(event, fun, plugin_name)
 
 	def trigger_event(self, event, plugin_name, *args):
+		status = True
 		try:
 			for to_call in self.data[event]:
 				self.logger.log("calling", event, plugin_name, self.whose_trigger(event))
 				try:
 					call_back = to_call(*args)
 				except Exception as e:
+					status = f"Plugin: {self.whose_trigger(event)} Fun: {to_call} Error: {e}"
 					self.trigger_event("on_error", plugin_name, [to_call, args, e])
 				else:
 					self.calls_logs[event].append(call_back)
 					self.trigger_datas[event].append(args)
-			return True
+			return status
 		except Exception as e:
 			self.trigger_event("on_error", plugin_name, ["trigger_event", args, e])
 

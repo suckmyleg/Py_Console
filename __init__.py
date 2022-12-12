@@ -9,15 +9,15 @@ import threading
 
 class Main:
 	def __init__(self):
-		self.t = trigger.Trigger()
 		self.c = Client.Client()
+		self.t = trigger.Trigger(self.c)
 
 	def main(self):
 		while True:
 			self.t.call_and_trigger("on_message", self.c.input, "Main", "> ")
 
 	def import_plugins(self, *args):
-		self.t = trigger.Trigger()
+		self.t = trigger.Trigger(self.c)
 
 		Extensions = os.listdir("Extensions")
 
@@ -35,8 +35,8 @@ class Main:
 					self.t.trigger_event("on_extension_imported", "Main", extension_imported)
 					extension_imported.Module_Name = extension[:-3]
 					Imported.append(extension_imported)
-				except:
-					print("Error importing extension:",extension)
+				except Exception as e:
+					print(f"Error importing extension: {extension} [{e}]")
 
 		for extension_imported in Imported:
 			self.t.trigger_event("on_extension_before_loading", "Main", extension_imported)
