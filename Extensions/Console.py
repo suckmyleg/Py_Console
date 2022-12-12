@@ -1,15 +1,18 @@
 import os
 
 def start(t, c, m):
-	def triggers(*args):
+	def triggers(args):
+		args = args.replace(" ", "")
 		c.print("Triggers:")
 		for trigger in t.trigger_datas.keys():
-			c.print(" -", trigger) 
+			if (t.whose_trigger(trigger) == args or args == ""):
+				c.print(" -", trigger) 
 
-	def help(*args):
+	def help(args):
+		args = args.replace(" ", "")
 		c.print("Commands:")
 		for trigger in t.trigger_datas.keys():
-			if not "on_" == trigger[0:3]:
+			if not "on_" == trigger[0:3] and (t.whose_trigger(trigger) == args or args == ""):
 				c.print(" -", trigger.replace("command_", "")) 
 
 	def plugins(*args):

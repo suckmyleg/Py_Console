@@ -10,6 +10,9 @@ class TriggerBridge:
 		self.trigger_by = self.t.trigger_by
 		self.plugin_name = name
 
+	def whose_trigger(self, trigger):
+		return self.t.whose_trigger(trigger)
+
 	def whose_command(self, command):
 		return self.t.whose_command(command)
 
