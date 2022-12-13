@@ -16,15 +16,19 @@ class Main:
 		while True:
 			self.t.call_and_trigger("on_message", self.c.input, "Main", "> ")
 
-	def import_plugins(self, *args):
+	def restart_triggers(self):
 		self.t = trigger.Trigger(self.c)
 
-		Extensions = os.listdir("Extensions")
+	def import_plugins(self, *args):
+		try:
+			Extensions = os.listdir("Extensions")
+		except:
+			Extensions = []
 
 		Imported = []
 
 		for extension in Extensions:
-			if extension not in ["__pycache__"]:
+			if extension not in ["__pycache__"] and not extension[0:2] == "X_":
 				try:
 					self.t.trigger_event("on_extension_before_exporting", "Main", extension)
 

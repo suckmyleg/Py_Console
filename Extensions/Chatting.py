@@ -1,17 +1,13 @@
 import os
 import socket
-import threading
 import pickle
 
 def start(t, c, m):
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	SERVER = False
+
+	CONNECTION = False
 
 	connections = []
-
-	status = "No connection"
-
-	_host = "Null"
 
 	def getAddr(*args):
 		host = list(args)[0]
@@ -43,9 +39,11 @@ def start(t, c, m):
 		server.bind((host, 8967))
 		server.listen()
 
-		threading.Thread(target=listenConnections).start()
+		t.create_thread(listenConnections)
 
-		status = "Hosting"
+		chat(*args)
+
+		return True
 
 	def main():
 		while True:
@@ -54,16 +52,22 @@ def start(t, c, m):
 	def recvMessage(*args):
 		connection.recv(1024)
 
+	def checkMessage(*args):
+		if CONNECTION != False:
+			return t.trigger_event("on_message_to_send", *args)
+		return True
+
 	def sendMessage(*args):
-		connection.sendall(pickle.dumps(args))
+		if CONNECTION != False:
+			connection.sendall(pickle.dumps(args))
 		return True
 
 	def getStatus(*args):
-		if status == "No connection":
+		if CONNECTION == False:
 			c.print("No connection")
-			return False
+			return True
 
-		c.print(f"{status} to {_host}")
+		c.print(f"Connected to {_host}")
 		return True
 
 	def chat(*args):
@@ -72,8 +76,6 @@ def start(t, c, m):
 		c.print(f"Connecting to chat {host}")
 
 		connection.connect((host, 8967))
-
-		status = "Connected"
 
 	def messageRecv(*args):
 		print(args)
@@ -86,7 +88,8 @@ def start(t, c, m):
 	t.add_command("hostChat", hostChat)
 	t.add_command("chat", chat)
 	t.add_command("chatStatus", getStatus)
-	t.add_listener("on_message", sendMessage)
+	t.add_listener("on_message", checkMessage)
+	t.add_listener("on_message_to_send", sendMessage)
 	t.add_listener("on_message_to_display", messageRecv)
 	
 	#t.add_listener("on_extension_started", line_empty)
