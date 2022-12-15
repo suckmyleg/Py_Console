@@ -90,6 +90,18 @@ def start(t, c, m):
 
 		return True
 
+	def push(args):
+		execute_cmd_command("git add *")
+		execute_cmd_command(f"git commit -m '{args}'")
+		execute_cmd_command("git push")
+
+		return True
+
+	def pull(args):
+		execute_cmd_command("git pull")
+
+		return True
+
 	def reload_console(args):
 		m.restart_triggers()
 		if args.lower().replace(" ", "") == "true":
@@ -97,6 +109,7 @@ def start(t, c, m):
 		m.import_plugins()
 
 	def execute_cmd_command(*args):
+		c.print(f"Executing command {args}")
 		os.system(*args)
 		return True
 
@@ -108,5 +121,7 @@ def start(t, c, m):
 	t.add_command("triggers", triggers)
 	t.add_command("execute", execute_cmd_command)
 	t.add_command("plugins", plugins)
+	t.add_command("pull", pull)
+	t.add_command("push", push)
 	t.add_command("who", who, "Display plugin where the command comes from")
 	t.add_command("reload", reload_console, "Reload all plugins")
