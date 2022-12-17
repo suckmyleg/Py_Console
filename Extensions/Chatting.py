@@ -3,93 +3,104 @@ import socket
 import pickle
 
 def start(t, c, m):
-	SERVER = False
 
-	CONNECTION = False
 
-	connections = []
+	class OnlineChatting:
+		def __init__(self):
+			self.SERVER = False
 
-	def getAddr(*args):
-		host = list(args)[0]
-		if(len(host.split(".")) == 1 and host != "localhost"): 
-			c.print("Incorrect address")
-			return False
-		_host = host
-		return host
+			self.CONNECTION = False
 
-	def listenConnection(conn, addr):
-		while True:
-			data = pickle.loads(conn.recv(1024))
-			for c in connections:
-				if not c == conn:
-					c.sendall(pickle.dumps([addr, data]))
+			self.connections = []
 
-	def listenConnections():
-		while True:
-			addr, conn = server.accept()
-			connections.append(conn)
+		def getAddr(self, *args):
+			host = list(args)[0]
+			if(len(host.split(".")) == 1 and host != "localhost"): 
+				c.print("Incorrect address")
+				return False
+			_host = host
+			return host
 
-		threading.Thread(target=listenConnection, args=(conn, addr)).start()
+		def listenConnection(self, conn, addr):
+			while True:
+				data = pickle.loads(conn.recv(1024))
+				for c in self.connections:
+					if not c == conn:
+						c.sendall(pickle.dumps([addr, data]))
 
-	def hostChat(*args):
-		host = getAddr(*args)
-		if not host: return False
-		c.print(f"Hosting chat {host}")
+		def listenConnections(self):
+			while True:
+				addr, conn = self.SERVER.accept()
+				self.connections.append(conn)
 
-		server.bind((host, 8967))
-		server.listen()
+			threading.Thread(target=self.listenConnection, args=(conn, addr)).start()
 
-		t.create_thread(listenConnections)
+		def hostChat(self, *args):
+			host = self.getAddr(*args)
+			if not host: return False
+			c.print(f"Hosting chat {host}")
 
-		chat(*args)
+			self.SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-		return True
+			self.SERVER.bind((host, 8967))
+			self.SERVER.listen()
 
-	def main():
-		while True:
-			t.call_and_trigger("on_message_to_display", recvMessage, "Chatting", "Message: ")
+			t.create_thread(self.listenConnections)
 
-	def recvMessage(*args):
-		connection.recv(1024)
+			self.chat(*args)
 
-	def checkMessage(*args):
-		if CONNECTION != False:
-			return t.trigger_event("on_message_to_send", *args)
-		return True
-
-	def sendMessage(*args):
-		if CONNECTION != False:
-			connection.sendall(pickle.dumps(args))
-		return True
-
-	def getStatus(*args):
-		if CONNECTION == False:
-			c.print("No connection")
 			return True
 
-		c.print(f"Connected to {_host}")
-		return True
+		def main(self):
+			while True:
+				t.call_and_trigger("on_message_to_display", self.recvMessage, "Chatting", "Message: ")
 
-	def chat(*args):
-		host = getAddr(*args)
-		if not host: return False
-		c.print(f"Connecting to chat {host}")
+		def recvMessage(self, *args):
+			self.CONNECTION.recv(1024)
 
-		connection.connect((host, 8967))
+		def checkMessage(self, *args):
+			if self.CONNECTION != False:
+				return t.trigger_event("on_message_to_send", *args)
+			return True
 
-	def messageRecv(*args):
-		print(args)
+		def sendMessage(self, *args):
+			if self.CONNECTION != False:
+				self.CONNECTION.sendall(pickle.dumps(args))
+			return True
 
-		username, message = args
+		def getStatus(*args):
+			if self.CONNECTION == False:
+				c.print("No connection")
+				return True
 
-		c.print(f"{username}: {message}")
+			c.print(f"Connected to {_host}")
+			return True
+
+		def chat(self, *args):
+			host = self.getAddr(*args)
+			if not host: return False
+			c.print(f"Connecting to chat {host}")
+
+			self.CONNECTION = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+			self.CONNECTION.connect((host, 8967))
+
+		def messageRecv(self, *args):
+			c.print(args)
+
+			username, message = args
+
+			c.print(f"{username}: {message}")
 
 
-	t.add_command("hostChat", hostChat)
-	t.add_command("chat", chat)
-	t.add_command("chatStatus", getStatus)
-	t.add_listener("on_message", checkMessage)
-	t.add_listener("on_message_to_send", sendMessage)
-	t.add_listener("on_message_to_display", messageRecv)
+
+	online = OnlineChatting()
+
+	t.add_command("hostChat", online.hostChat)
+	t.add_command("chat", online.chat)
+	t.add_command("chatStatus", online.getStatus)
+	t.add_listener("on_message", online.checkMessage)
+	t.add_listener("on_message_to_send", online.sendMessage)
+	t.add_listener("on_message_to_display", online.messageRecv)
 	
 	#t.add_listener("on_extension_started", line_empty)

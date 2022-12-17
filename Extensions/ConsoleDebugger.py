@@ -42,12 +42,17 @@ def start(t, c, m):
 
 		printed = [" ".join([str(b) for b in list(a)]) for a in c.messages_recv[startRecv:len(c.messages_recv)]]
 
+		filteredPrinted = []
+
+		for p in printed:
+			filteredPrinted += p.split("\n")
+
 		if not output:
 			status = "Failed"
 
 		c.print(f"\nTest:\n  Timelapsed: {end-start}\n  Status: {status}\n  Output: {output}\n  Printed:")
-		for p in printed:
-			print(f"    - {p}")
+		for p in range(len(filteredPrinted)):
+			print(f"   [{p}] {filteredPrinted[p]}")
 		return True
 
 	def testFun(text):

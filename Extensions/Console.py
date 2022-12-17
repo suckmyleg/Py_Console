@@ -1,6 +1,58 @@
 import os
 
 def start(t, c, m):
+	class DependableMode:
+		def __init__(self):
+			self.mode = ""
+			self.commandsSave = {}
+
+		def setCommand(self, text):
+			datas = text.split("=")
+
+			args = ""
+
+			for t in datas[1].split(" "):
+				if not t == " ":
+					args = f"{args}{t} "
+
+			self.commandsSave[datas[0].replace(" ", "")] = args[:len(args)-1]
+			return True
+
+		def trySavedCommand(self, text):
+			try:
+				return self.trigger_command_splitted(self.commandsSave[text])
+			except:
+				return True
+
+		def trigger_command_splitted(self, text):
+			for t in text.split(" && "):
+				self.trigger_command(t)
+			return True
+
+		def trigger_command(self, text):
+			datas = text.split(" ")
+
+			if self.mode == "":
+				command = datas[0]
+				del datas[0]
+			else:
+				command = self.mode
+
+			if t.trigger_command(command, " ".join(datas)):
+				t.trigger_event("on_command_executed", command)
+			else:
+				t.trigger_event("on_command_failed", command)
+
+			return True
+
+		def setMode(self, args):
+			self.mode = args
+
+		def unsetMode(self, args):
+			self.mode = ""
+
+	dependable = DependableMode()
+
 	def triggers(args):
 		args = args.replace(" ", "")
 		c.print("Triggers:")
@@ -78,17 +130,7 @@ def start(t, c, m):
 
 		return True
 
-	def trigger_command(text):
-		datas = text.split(" ")
-		command = datas[0]
-		del datas[0]
 
-		if t.trigger_command(command, " ".join(datas)):
-			t.trigger_event("on_command_executed", command)
-		else:
-			t.trigger_event("on_command_failed", command)
-
-		return True
 
 	def push(args):
 		execute_cmd_command("git add *")
@@ -114,7 +156,8 @@ def start(t, c, m):
 		return True
 
 
-	t.add_listener("on_message", trigger_command)
+	t.add_listener("on_message", dependable.trigger_command_splitted)
+	t.add_listener("on_message", dependable.trySavedCommand)
 	t.add_listener("on_command_executed", line_empty)
 	t.add_listener("on_command_failed", uknown_command)
 	t.add_command("help", help2, "Shows all commands from the plugins Params:(-d, -de, command, plugin_name)")
@@ -123,5 +166,8 @@ def start(t, c, m):
 	t.add_command("plugins", plugins)
 	t.add_command("pull", pull)
 	t.add_command("push", push)
+	t.add_command("mode", dependable.setMode)
+	t.add_command("unmode", dependable.unsetMode)
+	t.add_command("set", dependable.setCommand)
 	t.add_command("who", who, "Display plugin where the command comes from")
 	t.add_command("reload", reload_console, "Reload all plugins")

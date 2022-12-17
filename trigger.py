@@ -110,7 +110,7 @@ class Trigger:
 					call_back = to_call(*args)
 				except Exception as e:
 					call_back = "Nothing returned"
-					status = f"Plugin: {self.whose_trigger(event)} Fun: {to_call} Error: {e}"
+					status = f"Plugin: {self.whose_trigger(event)} Error: {e}"
 					self.trigger_event("on_error", plugin_name, [to_call, args, e])
 				else:
 					self.calls_logs[event].append(call_back)
